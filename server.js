@@ -83,7 +83,7 @@ app.put('/envelopes/:id', (req, res) => {
     res.status(200).send(`Конверт с ID ${envelopeId} обновлён: ${JSON.stringify(envelope)}`);
 });
 
-/ POST-эндпоинт для вычитания суммы из бюджета конверта
+// POST-эндпоинт для вычитания суммы из бюджета конверта
 app.post('/envelopes/:id/withdraw', (req, res) => {
     const envelopeId = parseInt(req.params.id);
     const { amount } = req.body;
@@ -107,6 +107,22 @@ app.post('/envelopes/:id/withdraw', (req, res) => {
     envelope.budget -= amount; // Вычитание суммы из бюджета
 
     res.status(200).send(`Сумма ${amount} успешно вычтена из конверта '${envelope.title}'. Текущий бюджет: ${envelope.budget}.`);
+});
+
+// DELETE-эндпоинт для удаления конверта по ID
+app.delete('/envelopes/:id', (req, res) => {
+    const envelopeId = parseInt(req.params.id);
+    const originalLength = envelopes.length;
+
+    // Фильтруем массив, чтобы удалить конверт с указанным ID
+    envelopes = envelopes.filter(env => env.id !== envelopeId);
+
+    // Если длина массива изменилась, значит конверт был найден и удалён
+    if (envelopes.length < originalLength) {
+        res.status(200).send(`Конверт с ID ${envelopeId} успешно удалён.`);
+    } else {
+        res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+    }
 });
 
 // Запуск сервера
