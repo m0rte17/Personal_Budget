@@ -3,6 +3,9 @@ const cors = require('cors'); // Подключаем CORS
 const app = express();
 const port = 3000; 
 
+// Используем CORS для всех маршрутов
+app.use(cors());
+
 // Массив для хранения всех конвертов
 let envelopes = [];
 let nextId = 1; // Начальный ID для конвертов
