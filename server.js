@@ -1,67 +1,67 @@
 const express = require('express');
-const cors = require('cors'); // Подключаем CORS
+const cors = require('cors'); // Connect CORS
 const app = express();
 const port = 3000; 
 
-// Используем CORS для всех маршрутов
+// Use CORS for all routes
 app.use(cors());
 
-// Массив для хранения всех конвертов
+// Array for storing all envelopes
 let envelopes = [];
-let nextId = 1; // Начальный ID для конвертов
+let nextId = 1; // Initial ID for envelopes
 
-// Middleware для обработки JSON-тел запросов
+// Middleware for processing JSON requests
 app.use(express.json());
 
-// POST-эндпоинт для создания нового конверта
+// POST endpoint to create a new envelope
 app.post('/envelopes', (req, res) => {
     const { title, budget } = req.body;
 
-    // Проверка на наличие обязательных данных
+    // Checking for mandatory data
     if (!title || !budget) {
-        return res.status(400).send('Title и budget обязательны.');
+        return res.status(400).send('Title and budget are mandatory.');
     }
 
-    // Создание нового конверта
+    // Creating a new envelope
     const newEnvelope = {
         id: nextId++,
         title: title,
         budget: budget
     };
 
-    // Добавление конверта в массив
+    // Adding an envelope to an array
     envelopes.push(newEnvelope);
 
-    // Ответ на успешное создание
-    res.status(201).send(`Конверт '${newEnvelope.title}' с бюджетом ${newEnvelope.budget} успешно создан.`);
+    // Response to the successful creation of
+    res.status(201).send(`Envelope '${newEnvelope.title}' with the budget ${newEnvelope.budget} successfully created.`);
 });
 
-// GET-эндпоинт для получения всех конвертов
+// GET endpoint to retrieve all envelopes
 app.get('/envelopes', (req, res) => {
-    // Проверка, есть ли конверты
+    // Checking to see if there are envelopes
     if (envelopes.length === 0) {
-        return res.status(404).send('Нет созданных конвертов.');
+        return res.status(404).send('There are no envelopes created.');
     }
 
-    // Возвращаем все конверты
+    // Return all envelopes
     res.status(200).json(envelopes);
 });
 
-// GET-эндпоинт для получения конверта по ID 
+// GET endpoint to retrieve envelope by ID 
 app.get('/envelopes/:id', (req, res) => {
-    const envelopeId = parseInt(req.params.id); // Парсим ID из параметра URL
+    const envelopeId = parseInt(req.params.id); // Parsing ID from URL parameter
     const envelope = envelopes.find(env => env.id === envelopeId);
 
-    // Если конверт не найден, возвращаем 404
+    // If no envelope is found, return 404
     if (!envelope) {
-        return res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+        return res.status(404).send(`Envelope ID ${envelopeId} not found.`);
     }
 
-    // Возвращаем найденный конверт
+    // Returning the envelope we found
     res.status(200).json(envelope);
 });
 
-// PUT-эндпоинт для обновления конверта
+// PUT endpoint to update the envelope
 app.put('/envelopes/:id', (req, res) => {
     const envelopeId = parseInt(req.params.id);
     const { budget, title } = req.body;
@@ -69,25 +69,25 @@ app.put('/envelopes/:id', (req, res) => {
     const envelope = envelopes.find(env => env.id === envelopeId);
 
     if (!envelope) {
-        return res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+        return res.status(404).send(`Envelope ID ${envelopeId} not found.`);
     }
 
-    // Валидация данных
+    // Data validation
     if (budget !== undefined) {
         if (typeof budget !== 'number' || budget < 0) {
-            return res.status(400).send('Бюджет должен быть положительным числом.');
+            return res.status(400).send('The budget should be a positive number.');
         }
-        envelope.budget = budget; // Обновление бюджета
+        envelope.budget = budget; // Budget Update
     }
 
     if (title) {
-        envelope.title = title; // Обновление названия конверта
+        envelope.title = title; // Updating the envelope name
     }
 
-    res.status(200).send(`Конверт с ID ${envelopeId} обновлён: ${JSON.stringify(envelope)}`);
+    res.status(200).send(`Envelope ID ${envelopeId} updated: ${JSON.stringify(envelope)}`);
 });
 
-// POST-эндпоинт для вычитания суммы из бюджета конверта
+// POST endpoint to subtract the amount from the envelope budget
 app.post('/envelopes/:id/withdraw', (req, res) => {
     const envelopeId = parseInt(req.params.id);
     const { amount } = req.body;
@@ -95,74 +95,74 @@ app.post('/envelopes/:id/withdraw', (req, res) => {
     const envelope = envelopes.find(env => env.id === envelopeId);
 
     if (!envelope) {
-        return res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+        return res.status(404).send(`Envelope ID ${envelopeId} not found.`);
     }
 
-    // Валидация данных
+    // Data validation
     if (typeof amount !== 'number' || amount <= 0) {
-        return res.status(400).send('Сумма для вычитания должна быть положительным числом.');
+        return res.status(400).send('The sum for subtraction must be a positive number.');
     }
 
-    // Проверка, достаточно ли бюджета для вычитания
+    // Checking whether the budget is sufficient for subtraction
     if (envelope.budget < amount) {
-        return res.status(400).send('Недостаточно средств на конверте.');
+        return res.status(400).send('Insufficient funds on the envelope.');
     }
 
-    envelope.budget -= amount; // Вычитание суммы из бюджета
+    envelope.budget -= amount; // Deducting an amount from the budget
 
-    res.status(200).send(`Сумма ${amount} успешно вычтена из конверта '${envelope.title}'. Текущий бюджет: ${envelope.budget}.`);
+    res.status(200).send(`The amount ${amount} has been successfully deducted from the envelope '${envelope.title}'. Current budget: ${envelope.budget}.`);
 });
 
-// DELETE-эндпоинт для удаления конверта по ID
+// DELETE endpoint for deleting an envelope by ID
 app.delete('/envelopes/:id', (req, res) => {
     const envelopeId = parseInt(req.params.id);
     const originalLength = envelopes.length;
 
-    // Фильтруем массив, чтобы удалить конверт с указанным ID
+    // Filter the array to remove the envelope with the specified ID
     envelopes = envelopes.filter(env => env.id !== envelopeId);
 
-    // Если длина массива изменилась, значит конверт был найден и удалён
+    // If the length of the array has changed, then the envelope has been found and removed
     if (envelopes.length < originalLength) {
-        res.status(200).send(`Конверт с ID ${envelopeId} успешно удалён.`);
+        res.status(200).send(`Envelope ID ${envelopeId} successfully deleted.`);
     } else {
-        res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+        res.status(404).send(`Envelope ID ${envelopeId} not found.`);
     }
 });
 
-// POST-эндпоинт для перевода бюджета между конвертами
+// POST endpoint for budget transfer between envelopes
 app.post('/envelopes/transfer/:from/:to', (req, res) => {
-    const fromId = parseInt(req.params.from); // ID конверта, из которого переводим
-    const toId = parseInt(req.params.to);     // ID конверта, в который переводим
-    const { amount } = req.body;               // Сумма перевода из тела запроса
+    const fromId = parseInt(req.params.from); // ID of the envelope from which we are transferring
+    const toId = parseInt(req.params.to);     // ID of the envelope we're transferring
+    const { amount } = req.body;               // Transfer amount from the request body
 
-    // Находим оба конверта
+    // Finding both envelopes
     const fromEnvelope = envelopes.find(env => env.id === fromId);
     const toEnvelope = envelopes.find(env => env.id === toId);
 
-    // Проверяем, найдены ли оба конверта
+    // Checking to see if both envelopes are found
     if (!fromEnvelope) {
-        return res.status(404).send(`Конверт с ID ${fromId} не найден.`);
+        return res.status(404).send(`Envelope ID ${fromId} not found.`);
     }
     if (!toEnvelope) {
-        return res.status(404).send(`Конверт с ID ${toId} не найден.`);
+        return res.status(404).send(`Envelope ID ${toId} not found.`);
     }
 
-    // Валидация суммы
+    // Amount validation
     if (typeof amount !== 'number' || amount <= 0) {
-        return res.status(400).send('Сумма для перевода должна быть положительным числом.');
+        return res.status(400).send('The amount to be transferred must be a positive number.');
     }
     if (fromEnvelope.budget < amount) {
-        return res.status(400).send('Недостаточно средств на конверте для перевода.');
+        return res.status(400).send('Insufficient funds on the envelope for the transfer.');
     }
 
-    // Переводим средства
-    fromEnvelope.budget -= amount; // Вычитаем сумму из первого конверта
-    toEnvelope.budget += amount;    // Добавляем сумму ко второму конверту
+    // Transferring funds
+    fromEnvelope.budget -= amount; // Subtract the amount from the first envelope
+    toEnvelope.budget += amount;    // Add the amount to the second envelope
 
-    res.status(200).send(`Сумма ${amount} успешно переведена из конверта '${fromEnvelope.title}' в конверт '${toEnvelope.title}'.`);
+    res.status(200).send(`The amount ${amount}  was successfully transferred from the envelope '${fromEnvelope.title}' to the envelope '${toEnvelope.title}'.`);
 });
 
-// Запуск сервера
+// Server startup
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
