@@ -5,7 +5,7 @@ This is an API for budget management using the envelope method. It allows you to
 
 ## Installation
 1. Clone the repository:
-git clone https://github.com/ваше_имя_пользователя/Personal_Budget.git
+git clone https://github.com/your_username/Personal_Budget.git
 
 2. Navigate to the project folder:
 cd Personal_Budget
