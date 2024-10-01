@@ -32,6 +32,17 @@ app.post('/envelopes', (req, res) => {
     res.status(201).send(`Конверт '${newEnvelope.title}' с бюджетом ${newEnvelope.budget} успешно создан.`);
 });
 
+// GET-эндпоинт для получения всех конвертов
+app.get('/envelopes', (req, res) => {
+    // Проверка, есть ли конверты
+    if (envelopes.length === 0) {
+        return res.status(404).send('Нет созданных конвертов.');
+    }
+
+    // Возвращаем все конверты
+    res.status(200).json(envelopes);
+});
+
 // Запуск сервера
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
