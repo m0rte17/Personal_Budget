@@ -57,6 +57,58 @@ app.get('/envelopes/:id', (req, res) => {
     res.status(200).json(envelope);
 });
 
+// PUT-эндпоинт для обновления конверта
+app.put('/envelopes/:id', (req, res) => {
+    const envelopeId = parseInt(req.params.id);
+    const { budget, title } = req.body;
+
+    const envelope = envelopes.find(env => env.id === envelopeId);
+
+    if (!envelope) {
+        return res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+    }
+
+    // Валидация данных
+    if (budget !== undefined) {
+        if (typeof budget !== 'number' || budget < 0) {
+            return res.status(400).send('Бюджет должен быть положительным числом.');
+        }
+        envelope.budget = budget; // Обновление бюджета
+    }
+
+    if (title) {
+        envelope.title = title; // Обновление названия конверта
+    }
+
+    res.status(200).send(`Конверт с ID ${envelopeId} обновлён: ${JSON.stringify(envelope)}`);
+});
+
+/ POST-эндпоинт для вычитания суммы из бюджета конверта
+app.post('/envelopes/:id/withdraw', (req, res) => {
+    const envelopeId = parseInt(req.params.id);
+    const { amount } = req.body;
+
+    const envelope = envelopes.find(env => env.id === envelopeId);
+
+    if (!envelope) {
+        return res.status(404).send(`Конверт с ID ${envelopeId} не найден.`);
+    }
+
+    // Валидация данных
+    if (typeof amount !== 'number' || amount <= 0) {
+        return res.status(400).send('Сумма для вычитания должна быть положительным числом.');
+    }
+
+    // Проверка, достаточно ли бюджета для вычитания
+    if (envelope.budget < amount) {
+        return res.status(400).send('Недостаточно средств на конверте.');
+    }
+
+    envelope.budget -= amount; // Вычитание суммы из бюджета
+
+    res.status(200).send(`Сумма ${amount} успешно вычтена из конверта '${envelope.title}'. Текущий бюджет: ${envelope.budget}.`);
+});
+
 // Запуск сервера
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
