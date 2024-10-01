@@ -1,34 +1,34 @@
 # Personal Budget API
 
-## Описание
-Это API для управления бюджетом с использованием метода конвертов. Оно позволяет создавать, обновлять, удалять и просматривать конверты с бюджетами.
+## Description
+This is an API for budget management using the envelope method. It allows you to create, update, delete and view budget envelopes.
 
-## Установка
-1. Склонируйте репозиторий:
+## Installation
+1. Clone the repository:
 git clone https://github.com/ваше_имя_пользователя/Personal_Budget.git
 
-2. Перейдите в папку проекта:
+2. Navigate to the project folder:
 cd Personal_Budget
 
-3. Установите зависимости:
+3. Establish dependencies:
 npm install
 
-4. Запустите сервер:
+4. Start the server:
 node server.js
 
-## Использование
-API предоставляет следующие маршруты:
+## Usage.
+The API provides the following routes:
 
-- `GET /envelopes` — получить все конверты
-- `GET /envelopes/:id` — получить конкретный конверт по ID
-- `POST /envelopes` — создать новый конверт
-- `PUT /envelopes/:id` — обновить конверт
-- `DELETE /envelopes/:id` — удалить конверт
+- `GET /envelopes` — get all envelopes
+- `GET /envelopes/:id` — get a specific envelope by ID
+- `POST /envelopes` — create a new envelope
+- `PUT /envelopes/:id` — refresh the envelope
+- `DELETE /envelopes/:id` — push the envelope
 
-## Пример запроса
-Используйте Postman или любой другой инструмент для тестирования API:
+## Example request
+Use Postman or any other API testing tool:
 GET http://localhost:3000/envelopes
 
 
-## Лицензия
+## License
 MIT
