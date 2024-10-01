@@ -125,6 +125,39 @@ app.delete('/envelopes/:id', (req, res) => {
     }
 });
 
+// POST-эндпоинт для перевода бюджета между конвертами
+app.post('/envelopes/transfer/:from/:to', (req, res) => {
+    const fromId = parseInt(req.params.from); // ID конверта, из которого переводим
+    const toId = parseInt(req.params.to);     // ID конверта, в который переводим
+    const { amount } = req.body;               // Сумма перевода из тела запроса
+
+    // Находим оба конверта
+    const fromEnvelope = envelopes.find(env => env.id === fromId);
+    const toEnvelope = envelopes.find(env => env.id === toId);
+
+    // Проверяем, найдены ли оба конверта
+    if (!fromEnvelope) {
+        return res.status(404).send(`Конверт с ID ${fromId} не найден.`);
+    }
+    if (!toEnvelope) {
+        return res.status(404).send(`Конверт с ID ${toId} не найден.`);
+    }
+
+    // Валидация суммы
+    if (typeof amount !== 'number' || amount <= 0) {
+        return res.status(400).send('Сумма для перевода должна быть положительным числом.');
+    }
+    if (fromEnvelope.budget < amount) {
+        return res.status(400).send('Недостаточно средств на конверте для перевода.');
+    }
+
+    // Переводим средства
+    fromEnvelope.budget -= amount; // Вычитаем сумму из первого конверта
+    toEnvelope.budget += amount;    // Добавляем сумму ко второму конверту
+
+    res.status(200).send(`Сумма ${amount} успешно переведена из конверта '${fromEnvelope.title}' в конверт '${toEnvelope.title}'.`);
+});
+
 // Запуск сервера
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
